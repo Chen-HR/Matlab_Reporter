@@ -19,7 +19,7 @@ classdef MermaidDiscreteXYChartBuilder < reporter.MermaidXYChartBuilder
         
         function code = generateMermaidCode(obj)
             catStrs = arrayfun(@(x) obj.formatText(x), obj.Categories);
-            xAxisStr = "x-axis " + obj.formatText(obj.XAxisTitle) + " [" + strjoin(catStrs, ", ") + "]";
+            xAxisStr = "x-axis " + obj.formatText(obj.XAxisTitle) + " [""" + strjoin(catStrs, """, """) + """]";
             
             code = "xychart" + newline + ...
                    "    title " + obj.formatText(obj.Title) + newline + ...
