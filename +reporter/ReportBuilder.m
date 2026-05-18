@@ -53,6 +53,18 @@ classdef ReportBuilder < handle
             obj.Content(end+1) = "";
         end
         
+        function addMermaidXYChart(obj, chartBuilder)
+            % ADDMERMAIDXYCHART Embeds a Mermaid XY Chart into the document.
+            arguments
+                obj
+                chartBuilder (1,1) reporter.MermaidXYChartBuilder
+            end
+            obj.Content(end+1) = "```mermaid";
+            obj.Content(end+1) = chartBuilder.generateMermaidCode();
+            obj.Content(end+1) = "```";
+            obj.Content(end+1) = "";
+        end
+
         function exportMarkdown(obj)
             fid = fopen(obj.FilePath, 'w', 'n', 'UTF-8');
             if fid == -1
