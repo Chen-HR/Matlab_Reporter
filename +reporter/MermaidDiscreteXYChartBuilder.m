@@ -6,26 +6,24 @@ classdef MermaidDiscreteXYChartBuilder < reporter.MermaidXYChartBuilder
     end
     
     methods
-        function obj = MermaidDiscreteXYChartBuilder(title, xAxisTitle, yAxisTitle, categories)
+        function obj = MermaidDiscreteXYChartBuilder(categories, xAxisTitle, yAxisTitle, title)
             arguments
-                title      (1,1) string
-                xAxisTitle (1,1) string
-                yAxisTitle (1,1) string
                 categories (1,:) string
+                xAxisTitle (1,1) string = ""
+                yAxisTitle (1,1) string = ""
+                title      (1,1) string = ""
             end
-            obj@reporter.MermaidXYChartBuilder(title, xAxisTitle, yAxisTitle);
+            obj@reporter.MermaidXYChartBuilder(xAxisTitle, yAxisTitle, title);
             obj.Categories = categories;
         end
         
-        function code = generateMermaidCode(obj)
-            catStrs = arrayfun(@(x) obj.formatText(x), obj.Categories);
-            xAxisStr = "x-axis " + obj.formatText(obj.XAxisTitle) + " [""" + strjoin(catStrs, """, """) + """]";
-            
-            code = "xychart" + newline + ...
-                   "    title " + obj.formatText(obj.Title) + newline + ...
-                   "    " + xAxisStr + newline + ...
-                   "    " + obj.formatYAxis() + newline + ...
-                   obj.formatSeries();
+        function str = formatXAxis(obj)
+            str = "x-axis";
+            if obj.XAxisTitle ~= ""
+                str = str + " """ + obj.XAxisTitle + """";
+            end
+            catData = "[" + strjoin("""" + obj.Categories + """", ", ") + "]";
+            str = str + " " + catData;
         end
     end
 end

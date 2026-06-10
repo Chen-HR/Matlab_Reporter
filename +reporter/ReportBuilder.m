@@ -2,17 +2,39 @@ classdef ReportBuilder < handle
     %REPORTBUILDER Constructs a Markdown report document programmatically.
     
     properties (SetAccess = private)
-        FilePath (1,1) string
+        % FilePath (1,1) string
         Content (:,1) string
     end
     
-    methods
-        function obj = ReportBuilder(filePath)
-            arguments
-                filePath (1,1) string
-            end
-            obj.FilePath = filePath;
+    methods % Initialize
+        function obj = ReportBuilder()
             obj.Content = [];
+        end
+    end
+
+    methods % Row
+        function addLines(obj, lines)
+            arguments
+                obj
+                lines (:,1) string
+            end
+            obj.Content = [obj.Content; lines];
+        end
+        function addLine(obj, line)
+            arguments
+                obj
+                line (1,1) string = ""
+            end
+            obj.Content(end+1) = line;
+        end
+        
+        function addText(obj, text)
+            arguments
+                obj
+                text (1,1) string
+            end
+            obj.addLine(text);
+            obj.addLine();
         end
         
         function addHeading(obj, text, level)
@@ -21,16 +43,8 @@ classdef ReportBuilder < handle
                 text (1,1) string
                 level (1,1) double {mustBeInteger, mustBeInRange(level, 1, 6)} = 1
             end
-            prefix = repmat('#', 1, level);
-            obj.Content(end+1) = prefix + " " + text + newline;
-        end
-        
-        function addText(obj, text)
-            arguments
-                obj
-                text (1,1) string
-            end
-            obj.Content(end+1) = text + newline;
+            obj.addLine(repmat('#', 1, level) + " " + text);
+            obj.addLine();
         end
         
         function addTable(obj, tableBuilder)
@@ -38,19 +52,8 @@ classdef ReportBuilder < handle
                 obj
                 tableBuilder (1,1) reporter.TableBuilder
             end
-            
-            headerStr = "| " + strjoin(tableBuilder.Headers, " | ") + " |";
-            sepStr = "| " + strjoin(repmat("---", 1, length(tableBuilder.Headers)), " | ") + " |";
-            
-            obj.Content(end+1) = headerStr;
-            obj.Content(end+1) = sepStr;
-            
-            for i = 1:size(tableBuilder.Rows, 1)
-                strRow = cellfun(@(x) string(x), tableBuilder.Rows(i, :));
-                rowStr = "| " + strjoin(strRow, " | ") + " |";
-                obj.Content(end+1) = rowStr;
-            end
-            obj.Content(end+1) = "";
+            obj.addLines(tableBuilder.exportCodeLines_Markdown());
+            obj.addLine();
         end
         
         function addMermaidXYChart(obj, chartBuilder)
@@ -59,23 +62,27 @@ classdef ReportBuilder < handle
                 obj
                 chartBuilder (1,1) reporter.MermaidXYChartBuilder
             end
-            obj.Content(end+1) = "```mermaid";
-            obj.Content(end+1) = chartBuilder.generateMermaidCode();
-            obj.Content(end+1) = "```";
-            obj.Content(end+1) = "";
+            obj.addLine("```mermaid");
+            obj.addLines(chartBuilder.exportCodeLines());
+            obj.addLine("```");
+            obj.addLine();
         end
+    end
 
-        function exportMarkdown(obj)
-            fid = fopen(obj.FilePath, 'w', 'n', 'UTF-8');
+    methods % Export
+        function exportMarkdown(obj, filePath)
+            arguments
+                obj
+                filePath (1,1) string
+            end
+            fid = fopen(filePath, 'w', 'n', 'UTF-8');
             if fid == -1
                 error('reporter:ReportBuilder:FileAccessError', ...
-                      'Cannot open file for writing: %s', obj.FilePath);
+                      'Cannot open file for writing: %s', filePath);
             end
             
             try
-                for i = 1:length(obj.Content)
-                    fprintf(fid, '%s\n', obj.Content(i));
-                end
+                fprintf(fid, strjoin(obj.Content, newline));
             catch ME
                 fclose(fid);
                 rethrow(ME);
