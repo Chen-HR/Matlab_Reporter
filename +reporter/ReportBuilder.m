@@ -82,7 +82,7 @@ classdef ReportBuilder < handle
             end
             
             try
-                fprintf(fid, strjoin(obj.Content, newline));
+                fprintf(fid, "%s", strjoin(obj.Content, newline));
             catch ME
                 fclose(fid);
                 rethrow(ME);

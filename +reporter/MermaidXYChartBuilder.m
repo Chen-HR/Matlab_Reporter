@@ -102,7 +102,7 @@ classdef (Abstract) MermaidXYChartBuilder < handle
             end
             fid = fopen(filePath, 'w', 'n', 'UTF-8');
             if fid == -1, error("Cannot open file for writing."); end
-            fprintf(fid, strjoin(obj.exportCodeLines(), newline));
+            fprintf(fid, "%s", strjoin(obj.exportCodeLines(), newline));
             fclose(fid);
         end
     end
