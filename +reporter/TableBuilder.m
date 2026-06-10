@@ -56,7 +56,7 @@ classdef TableBuilder < handle
             end
             
             try
-                fprintf(fid, "%s", obj.exportCodeLines_CSV());
+                fprintf(fid, "%s", strjoin(obj.exportCodeLines_CSV(), newline));
             catch ME
                 fclose(fid);
                 rethrow(ME);
@@ -76,7 +76,7 @@ classdef TableBuilder < handle
             end
             
             try
-                fprintf(fid, "%s", obj.exportCodeLines_Markdown());
+                fprintf(fid, "%s", strjoin(obj.exportCodeLines_Markdown(), newline));
             catch ME
                 fclose(fid);
                 rethrow(ME);
